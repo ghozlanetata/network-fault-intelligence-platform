@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0a111a"><title>Network Intelligence · NFI</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <section class="login-screen" id="login-screen" aria-labelledby="login-title">
+    <header class="login-identity">
+      <div class="login-brand" aria-label="Network Fault Intelligence">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 22 12 9l7 13 8-15M5 22h22"/><circle cx="5" cy="22" r="2"/><circle cx="12" cy="9" r="2"/><circle cx="19" cy="22" r="2"/><circle cx="27" cy="7" r="2"/></svg></span>
+        <span><b>Network Fault Intelligence</b><small>NETWORK OPERATIONS</small></span>
+      </div>
+      <div class="identity-copy">
+        <div class="eyebrow"><span class="live-indicator" aria-hidden="true"></span> NETWORK ANALYTICS PLATFORM</div>
+        <h2>Understand your <span>network.</span></h2>
+        <p>Intelligent fault recognition and performance analytics for modern mobile networks.</p>
+      </div>
+      <div class="network-visual" aria-label="Network data flow visualization">
+        <svg viewBox="0 0 640 220" role="img" aria-hidden="true">
+          <defs>
+            <linearGradient id="signal-line" x1="0" x2="1"><stop offset="0" stop-color="#3c7888" stop-opacity=".15"/><stop offset=".52" stop-color="#72c9d8"/><stop offset="1" stop-color="#3c7888" stop-opacity=".2"/></linearGradient>
+            <radialGradient id="signal-glow"><stop stop-color="#5abbd0" stop-opacity=".22"/><stop offset="1" stop-color="#5abbd0" stop-opacity="0"/></radialGradient>
+          </defs>
+          <path class="mesh-line" d="M20 164 120 92 212 145 310 68 405 126 515 57 620 105M20 164 105 194 212 145 295 186 405 126 500 170 620 105M120 92 105 194M212 145 230 28M310 68 295 186M405 126 430 24M515 57 500 170"/>
+          <path class="signal-path" d="M20 164 120 92 212 145 310 68 405 126 515 57 620 105"/>
+          <circle class="visual-halo" cx="310" cy="68" r="48"/>
+          <g class="mesh-nodes"><circle cx="20" cy="164" r="4"/><circle cx="120" cy="92" r="4"/><circle cx="212" cy="145" r="4"/><circle cx="310" cy="68" r="5"/><circle cx="405" cy="126" r="4"/><circle cx="515" cy="57" r="5"/><circle cx="620" cy="105" r="4"/></g>
+        </svg>
+        <div class="visual-label visual-label-top"><i aria-hidden="true"></i> LIVE NETWORK SIGNAL</div>
+        <div class="visual-label-bottom"><span>RADIO ACCESS</span><b>ML ENGINE</b><span>PERFORMANCE INSIGHTS</span></div>
+      </div>
+      <div class="capability-row" aria-label="Platform capabilities"><span>FAULT CLASSIFICATION</span><span>PERFORMANCE MONITORING</span><span>DATA INSIGHTS</span></div>
+      <div class="identity-footer">NETWORK FAULT INTELLIGENCE <b>·</b> ENGINEERING PLATFORM</div>
+    </header>
+    <div class="login-side">
+      <div class="login-mobile-brand" aria-label="Network Fault Intelligence">
+        <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 32 32"><path d="M5 22 12 9l7 13 8-15M5 22h22"/><circle cx="5" cy="22" r="2"/><circle cx="12" cy="9" r="2"/><circle cx="19" cy="22" r="2"/><circle cx="27" cy="7" r="2"/></svg></span>
+        <b>Network Fault Intelligence</b>
+      </div>
+      <div class="login-card">
+        <div class="eyebrow">OPERATOR ACCESS</div>
+        <h1 id="login-title">Welcome back</h1>
+        <p class="login-intro">Sign in to access your network analytics workspace.</p>
+        <form id="login-form">
+          <label for="login-username">Username</label>
+          <input id="login-username" name="username" autocomplete="username" required maxlength="254" placeholder="Enter your username">
+          <label for="login-password">Password</label>
+          <input id="login-password" name="password" type="password" autocomplete="current-password" required placeholder="Enter your password">
+          <button class="button" id="login-button" type="submit">SIGN IN <span aria-hidden="true">→</span></button>
+          <div class="form-error" id="login-error" role="alert" aria-live="polite"></div>
+        </form>
+        <div class="login-assurance"><span class="assurance-lock" aria-hidden="true">◇</span><span>Secure operator workspace<br><small>Authorized access only</small></span></div>
+      </div>
+      <div class="login-side-footer"><span>NETWORK FAULT INTELLIGENCE</span><span>OPERATIONS PLATFORM</span></div>
+    </div>
+  </section>
+  <div id="application" hidden>
+  <div class="shell">
+    <aside class="sidebar" id="sidebar">
+      <a class="brand" href="#overview"><span class="brand-mark"><svg viewBox="0 0 32 32" aria-hidden="true"><path d="M5 22 12 9l7 13 8-15M5 22h22"/><circle cx="5" cy="22" r="2"/><circle cx="12" cy="9" r="2"/><circle cx="19" cy="22" r="2"/><circle cx="27" cy="7" r="2"/></svg></span><span><b>Network Fault<br>Intelligence</b><small>Mobile Network Fault Recognition Platform</small></span></a>
+      <div class="side-label" id="workspace-label">WORKSPACE</div>
+      <nav class="nav" id="workspace-nav" aria-label="Main navigation">
+        <a href="#overview" data-route="overview"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h7V3H3zm11 8h7V11h-7zM3 21h7v-4H3zm11-14h7V3h-7z"/></svg></span> Overview</a>
+        <a href="#analyze" data-route="analyze"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l4-5 3 2 5-7"/></svg></span> Analyze</a>
+        <a href="#network-health" data-route="network-health"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M4 12h16M12 4c2.2 2.2 3.2 4.9 3.2 8s-1 5.8-3.2 8c-2.2-2.2-3.2-4.9-3.2-8s1-5.8 3.2-8Z"/></svg></span> Network Health</a>
+        <a href="#sites" data-route="sites"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20 10c0 5-8 11-8 11S4 15 4 10a8 8 0 1 1 16 0Z"/><circle cx="12" cy="10" r="2.5"/></svg></span> Network Sites</a>
+        <a href="#investigations" data-route="investigations" id="network-admin-nav" hidden><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h8M8 16h5"/></svg></span> Investigations</a>
+        <a href="#history" data-route="history"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 12a9 9 0 1 0 2.6-6.4L3 8m0-5v5h5m4-1v5l3 2"/></svg></span> History</a>
+        <a href="#system" data-route="system"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3 21 20H3L12 3Z"/><path d="M12 9v5m0 3h.01"/></svg></span> System Status</a>
+      </nav>
+      <div class="side-label" id="ml-admin-label" hidden>PLATFORM / ML ADMIN</div>
+      <nav class="nav" id="ml-admin-nav" aria-label="Platform and ML administration" hidden>
+        <a href="#overview" data-route="overview"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 13h7V3H3zm11 8h7V11h-7zM3 21h7v-4H3zm11-14h7V3h-7z"/></svg></span> Overview</a>
+        <a href="#ml-evaluation" data-route="ml-evaluation"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19V5m0 14h16M7 15l4-5 3 2 5-7"/><circle cx="11" cy="10" r="1"/><circle cx="14" cy="12" r="1"/></svg></span> ML Evaluation</a>
+        <a href="#verified-outcomes" data-route="verified-outcomes"><span class="nav-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 4h14v16H5zM8 8h8M8 12h4"/><path d="m14 15 2 2 4-5"/></svg></span> Verified Outcomes</a>
+      </nav>
+      <div class="sidebar-bottom"><div class="side-label">PLATFORM</div><div class="side-version"><span class="tiny-dot"></span> API · v0.1.0</div><div class="side-note">Engineering view<br>Inference policy enforced by API</div></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><button id="menu-toggle" class="menu-toggle" aria-label="Open navigation"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button><div class="crumb"><span>Network Fault Intelligence</span><b>/</b><strong id="crumb-page">Overview</strong></div><div class="top-actions"><span class="account">Signed in as <b id="account-name"></b><small id="account-role"></small></span><button id="logout-button" class="button ghost">LOGOUT</button><span class="utc" id="clock">--:--:-- UTC</span><div class="inference-badge unavailable" id="inference-indicator"><i></i><span>CHECKING API</span></div></div></header>
+      <div class="content" id="view" aria-live="polite"></div>
+      <footer>NETWORK FAULT INTELLIGENCE <span>·</span> MODERNIZED ENGINEERING PLATFORM <span class="footer-right">API-FIRST · MODEL OUTPUTS ARE AUTHORITATIVE</span></footer>
+    </main>
+  </div>
+  <div id="toast" class="toast" role="status"></div>
+  </div>
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+  <script src="/assets/app.js" defer></script>
+</body>
+</html>

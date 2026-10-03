@@ -1,0 +1,39 @@
+# Apply only while provisioning external model artifacts; remove after copying files.
+apiVersion: v1
+kind: Pod
+metadata:
+  name: nfi-model-loader
+  namespace: nfi
+  labels:
+    app.kubernetes.io/name: nfi-model-loader
+spec:
+  restartPolicy: Never
+  automountServiceAccountToken: false
+  securityContext:
+    runAsNonRoot: true
+    runAsUser: 10001
+    runAsGroup: 10001
+    fsGroup: 10001
+    seccompProfile:
+      type: RuntimeDefault
+  containers:
+    - name: loader
+      image: network-fault-intelligence-platform:local
+      imagePullPolicy: IfNotPresent
+      command:
+        - python
+        - -c
+        - import time; time.sleep(86400)
+      securityContext:
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities:
+          drop:
+            - ALL
+      volumeMounts:
+        - name: models
+          mountPath: /app/models
+  volumes:
+    - name: models
+      persistentVolumeClaim:
+        claimName: nfi-models

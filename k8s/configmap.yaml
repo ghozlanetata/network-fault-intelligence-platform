@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nfi-api-config
+  namespace: nfi
+data:
+  NFI_MODEL_DIR: /app/models
+  NFI_DATABASE_PATH: /app/data/nfi.sqlite3
+  NFI_LOG_LEVEL: INFO
+  HOME: /tmp
+  KERAS_HOME: /tmp/.keras
