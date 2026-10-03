@@ -13,7 +13,7 @@ from app.inference import (
     InferenceResult,
     resolve_status,
 )
-from app.ml.data import FEATURE_ORDER, ROOT, load_dataset
+from app.ml.data import FEATURE_ORDER, ROOT, load_dataset, locate_dataset
 from app.recommendations import recommendations_for
 from app.schemas import KPIRecord
 
@@ -71,6 +71,17 @@ class StubInference:
     def predict_batch(self, requests: list[KPIRecord]) -> list[InferenceResult]:
         self.batch = requests
         return [self.result for _ in requests]
+
+
+def external_network_health_dataset_missing() -> bool:
+    try:
+        locate_dataset()
+    except FileNotFoundError:
+        return True
+    return False
+
+
+NETWORK_HEALTH_DATASET_MISSING = external_network_health_dataset_missing()
 
 
 def open_client(
@@ -212,6 +223,10 @@ def test_valid_seven_feature_request_returns_fault_and_persists_history(
     assert privileged_history["inference"]["classification"]["probabilities"]["CH"] == 0.7
 
 
+@pytest.mark.skipif(
+    NETWORK_HEALTH_DATASET_MISSING,
+    reason="Network Health external dataset is not available.",
+)
 def test_network_health_is_filtered_for_operator_and_full_for_platform_ml_admin(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -267,6 +282,10 @@ def test_network_health_rejects_a_second_active_dataset_run(monkeypatch, tmp_pat
     assert latest.json()["status"] == "PROCESSING"
 
 
+@pytest.mark.skipif(
+    NETWORK_HEALTH_DATASET_MISSING,
+    reason="Network Health external dataset is not available.",
+)
 def test_selected_network_health_cell_returns_same_operator_investigation_record(
     monkeypatch, tmp_path: Path
 ) -> None:
@@ -313,7 +332,13 @@ def test_selected_network_health_cell_returns_same_operator_investigation_record
         } & admin_matching.keys()
 
 
-def test_network_health_real_serving_artifacts_end_to_end(monkeypatch, tmp_path: Path) -> None:
+@pytest.mark.skipif(
+    NETWORK_HEALTH_DATASET_MISSING,
+    reason="Network Health external dataset is not available.",
+)
+def test_network_health_real_serving_artifacts_end_to_end(
+    monkeypatch, tmp_path: Path
+) -> None:
     dataset = load_dataset()
     assert len(dataset.frame) == 1137
     db_path = tmp_path / "real-network-health.sqlite3"
