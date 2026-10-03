@@ -8,11 +8,11 @@ from pathlib import Path
 
 os.environ.setdefault("TF_CPP_MIN_LOG_LEVEL", "2")
 
+import h5py
 import numpy as np
 import pandas as pd
 import sklearn
 import tensorflow as tf
-import h5py
 from sklearn.metrics import (
     accuracy_score,
     confusion_matrix,
@@ -35,8 +35,12 @@ MODELS = {
 EXPECTED_HASHES = {
     # Captured at the start of this investigation; no previous manifest was present.
     "asma.h5": "0ed336fd8199152fa3017dd12429b5747235ac0a687abbbd0e19ddc9a28ac0b5",
-    "LSTM MULTI8CLASSES THE PREFECT ONE.h5": "ef257639cfe5194456968241d5dcdd6ffb2d76da45ac0d80708115c81fe36f84",
-    "LSTM_binary_THE_PERFECT_ONE.h5": "8fba86559aae495e44678a4a86f9921d9bc7e59a8f7e3dda6d5492b2023f62b6",
+    "LSTM MULTI8CLASSES THE PREFECT ONE.h5": (
+        "ef257639cfe5194456968241d5dcdd6ffb2d76da45ac0d80708115c81fe36f84"
+    ),
+    "LSTM_binary_THE_PERFECT_ONE.h5": (
+        "8fba86559aae495e44678a4a86f9921d9bc7e59a8f7e3dda6d5492b2023f62b6"
+    ),
 }
 
 
@@ -75,7 +79,12 @@ def saved_hdf5_model_config(path):
         )
     return {
         "input_shape_from_saved_config": next(
-            (str(layer["config"].get("batch_input_shape")) for layer in layers if layer["config"].get("batch_input_shape")), None
+            (
+                str(layer["config"].get("batch_input_shape"))
+                for layer in layers
+                if layer["config"].get("batch_input_shape")
+            ),
+            None,
         ),
         "layers_from_saved_config": [
             {
@@ -91,7 +100,9 @@ def saved_hdf5_model_config(path):
         "parameter_count_from_model_weight_tensors": int(sum(count for _, count in weights)),
         "model_weight_tensor_shapes": weights,
         "output_shape_inferred_from_saved_topology": (
-            f"(None, {layers[-1]['config'].get('units')})" if layers and layers[-1]["class_name"] == "Dense" else None
+            f"(None, {layers[-1]['config'].get('units')})"
+            if layers and layers[-1]["class_name"] == "Dense"
+            else None
         ),
     }
 
@@ -116,7 +127,6 @@ def model_info(model):
 
 
 def binary_report(y_fault_positive, pred_fault_positive, probs):
-    labels = ["Fault", "Normal"]
     p, r, f, support = precision_recall_fscore_support(
         y_fault_positive, pred_fault_positive, labels=[1, 0], zero_division=0
     )
@@ -136,7 +146,9 @@ def binary_report(y_fault_positive, pred_fault_positive, probs):
         "probability_range": [float(np.min(probs)), float(np.max(probs))],
         "probability_nonfinite_count": int(np.size(probs) - np.isfinite(probs).sum()),
         "threshold": 0.5,
-        "sigmoid_semantics_assumed_from_recovered_mapping": "output >= 0.5 => Normal (source binary labels 0=fault, 1=no fault)",
+        "sigmoid_semantics_assumed_from_recovered_mapping": (
+            "output >= 0.5 => Normal (source binary labels 0=fault, 1=no fault)"
+        ),
         "class_support_fault_normal": {"Fault": int(support[0]), "Normal": int(support[1])},
     }
 
@@ -154,7 +166,10 @@ def main():
     data = data.rename(columns=source_header_map)
     missing = [c for c in FEATURES + ["FaultCause"] if c not in data.columns]
     if missing:
-        raise ValueError(f"Missing required named columns after explicit source-header mapping: {missing}; got {data.columns.tolist()}")
+        raise ValueError(
+            "Missing required named columns after explicit source-header mapping: "
+            f"{missing}; got {data.columns.tolist()}"
+        )
     feature_df = data.loc[:, FEATURES]
     x_raw = feature_df.to_numpy(dtype=np.float64)
     if x_raw.shape != (1137, 7):
@@ -194,14 +209,24 @@ def main():
             "exact_duplicate_feature_rows": int(feature_df.duplicated().sum()),
             "unique_feature_rows": int(feature_df.drop_duplicates().shape[0]),
             "duplicate_feature_groups": int((duplicate_group_sizes > 1).sum()),
-            "rows_in_duplicate_feature_groups": int(duplicate_group_sizes[duplicate_group_sizes > 1].sum()),
-            "duplicate_feature_groups_with_conflicting_labels": int((duplicate_label_counts > 1).sum()),
-            "rows_in_duplicate_feature_groups_with_conflicting_labels": int(duplicate_group_sizes[duplicate_label_counts > 1].sum()),
+            "rows_in_duplicate_feature_groups": int(
+                duplicate_group_sizes[duplicate_group_sizes > 1].sum()
+            ),
+            "duplicate_feature_groups_with_conflicting_labels": int(
+                (duplicate_label_counts > 1).sum()
+            ),
+            "rows_in_duplicate_feature_groups_with_conflicting_labels": int(
+                duplicate_group_sizes[duplicate_label_counts > 1].sum()
+            ),
             "faultcause_unique_values": sorted(int(v) for v in np.unique(y_multi)),
-            "feature_label_means_by_class": data.groupby("FaultCause")[FEATURES].mean().to_dict(orient="index"),
+            "feature_label_means_by_class": (
+                data.groupby("FaultCause")[FEATURES].mean().to_dict(orient="index")
+            ),
         },
         "historical_application_preprocessing_reconstruction": {
-            "scaler": "new StandardScaler fit on all 1,137 validation rows and applied to same rows",
+            "scaler": (
+                "new StandardScaler fit on all 1,137 validation rows and applied to same rows"
+            ),
             "mean": scaler.mean_.tolist(),
             "scale": scaler.scale_.tolist(),
             "training_preprocessing_verified": False,
@@ -216,9 +241,17 @@ def main():
         try:
             model = tf.keras.models.load_model(path, compile=False)
             loaded[key] = model
-            result["models"][key] = {"filename": filename, "load_compile_false": "success", **model_info(model)}
+            result["models"][key] = {
+                "filename": filename,
+                "load_compile_false": "success",
+                **model_info(model),
+            }
         except Exception as exc:
-            result["models"][key] = {"filename": filename, "load_compile_false": "failed", "error": repr(exc)}
+            result["models"][key] = {
+                "filename": filename,
+                "load_compile_false": "failed",
+                "error": repr(exc),
+            }
             # Keras 3 removed legacy LSTM.time_major and no longer accepts
             # batch_input_shape as a layer kwarg. This adapter removes only those
             # obsolete config keys while retaining weights, topology, and activations.
@@ -237,7 +270,8 @@ def main():
                 loaded[key] = model
                 result["models"][key]["compatibility_load_compile_false"] = "success"
                 result["models"][key]["compatibility_adapter"] = (
-                    "Removed obsolete serialized LSTM time_major and batch_input_shape kwargs in memory; no HDF5 changes"
+                    "Removed obsolete serialized LSTM time_major and batch_input_shape "
+                    "kwargs in memory; no HDF5 changes"
                 )
                 result["models"][key].update(model_info(model))
             except Exception as compat_exc:
@@ -269,23 +303,57 @@ def main():
                     "all_rows_sum_approximately_1": sums_approx_one,
                     "row_sum_min": float(rowsum.min()),
                     "row_sum_max": float(rowsum.max()),
-                    "entropy_mean_nats": float(np.mean(-np.sum(np.clip(pred, 1e-12, 1) * np.log(np.clip(pred, 1e-12, 1)), axis=1))),
+                    "entropy_mean_nats": float(
+                        np.mean(
+                            -np.sum(
+                                np.clip(pred, 1e-12, 1)
+                                * np.log(np.clip(pred, 1e-12, 1)),
+                                axis=1,
+                            )
+                        )
+                    ),
                 }
                 item["evaluation"] = {
-                    "name": "Controlled reconstruction using recovered model + historical application preprocessing",
+                    "name": (
+                        "Controlled reconstruction using recovered model + historical "
+                        "application preprocessing"
+                    ),
                     "accuracy": float(accuracy_score(y_multi, y_pred)),
-                    "macro_precision": float(precision_recall_fscore_support(y_multi, y_pred, average="macro", zero_division=0)[0]),
-                    "macro_recall": float(recall_score(y_multi, y_pred, average="macro", zero_division=0)),
+                    "macro_precision": float(
+                        precision_recall_fscore_support(
+                            y_multi, y_pred, average="macro", zero_division=0
+                        )[0]
+                    ),
+                    "macro_recall": float(
+                        recall_score(y_multi, y_pred, average="macro", zero_division=0)
+                    ),
                     "macro_f1": float(f1_score(y_multi, y_pred, average="macro", zero_division=0)),
-                    "weighted_precision": float(precision_recall_fscore_support(y_multi, y_pred, average="weighted", zero_division=0)[0]),
-                    "weighted_recall": float(recall_score(y_multi, y_pred, average="weighted", zero_division=0)),
-                    "weighted_f1": float(f1_score(y_multi, y_pred, average="weighted", zero_division=0)),
-                    "confusion_matrix_labels_1_to_7": confusion_matrix(y_multi, y_pred, labels=labels).tolist(),
+                    "weighted_precision": float(
+                        precision_recall_fscore_support(
+                            y_multi, y_pred, average="weighted", zero_division=0
+                        )[0]
+                    ),
+                    "weighted_recall": float(
+                        recall_score(y_multi, y_pred, average="weighted", zero_division=0)
+                    ),
+                    "weighted_f1": float(
+                        f1_score(y_multi, y_pred, average="weighted", zero_division=0)
+                    ),
+                    "confusion_matrix_labels_1_to_7": confusion_matrix(
+                        y_multi, y_pred, labels=labels
+                    ).tolist(),
                     "per_class": {
-                        str(label): {"precision": float(per_p[i]), "recall": float(per_r[i]), "f1": float(per_f[i]), "support": int(support[i])}
+                        str(label): {
+                            "precision": float(per_p[i]),
+                            "recall": float(per_r[i]),
+                            "f1": float(per_f[i]),
+                            "support": int(support[i]),
+                        }
                         for i, label in enumerate(labels)
                     },
-                    "prediction_class_distribution": {str(label): int(np.sum(y_pred == label)) for label in labels},
+                    "prediction_class_distribution": {
+                        str(label): int(np.sum(y_pred == label)) for label in labels
+                    },
                 }
                 raw_pred = np.asarray(model.predict(x_raw_sequence, verbose=0))
                 item["raw_input_diagnostic_only"] = {
@@ -298,7 +366,8 @@ def main():
                     "probability_row_sum_max": float(np.max(raw_pred.sum(axis=1))),
                 }
             else:
-                # Archived binary labels are 0=fault and 1=no fault; invert to derived Fault-positive target.
+                # Archived binary labels are 0=fault and 1=no fault; invert to
+                # derived Fault-positive target.
                 if pred.ndim == 2 and pred.shape[1] == 1:
                     probs = pred[:, 0]
                 elif pred.ndim == 1:
@@ -308,7 +377,10 @@ def main():
                 y_fault_positive = (y_multi != 7).astype(np.int64)
                 # The archived binary source's encoded class 0 means Fault and 1 means Normal.
                 pred_fault_positive = (probs < 0.5).astype(np.int64)
-                item["evaluation_target"] = "Derived binary target: FaultCause 1–6=Fault, 7=Normal (not an independent binary annotation)"
+                item["evaluation_target"] = (
+                    "Derived binary target: FaultCause 1–6=Fault, 7=Normal "
+                    "(not an independent binary annotation)"
+                )
                 item["evaluation"] = binary_report(y_fault_positive, pred_fault_positive, probs)
                 raw_pred = np.asarray(model.predict(x_raw_sequence, verbose=0)).reshape(-1)
                 item["raw_input_diagnostic_only"] = {
@@ -327,7 +399,11 @@ def main():
         try:
             compiled = tf.keras.models.load_model(MODEL_DIR / filename)
             result["models"][key]["compiled_load"] = "success"
-            result["models"][key]["compiled_optimizer"] = compiled.optimizer.__class__.__name__ if hasattr(compiled, "optimizer") else None
+            result["models"][key]["compiled_optimizer"] = (
+                compiled.optimizer.__class__.__name__
+                if hasattr(compiled, "optimizer")
+                else None
+            )
         except Exception as exc:
             result["models"][key]["compiled_load"] = "failed"
             result["models"][key]["compiled_load_error"] = repr(exc)
