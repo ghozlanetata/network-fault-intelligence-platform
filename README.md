@@ -1,423 +1,795 @@
-﻿# Network Fault Intelligence Platform
 
-Modernization foundation for the Master's thesis and Ericsson Algeria graduation project,
-**“Self-healing and Fault Recognition based on Deep Learning in Wireless Networks.”** The
-research workflow evaluates drive-test/mobile-network KPIs for 2G, 3G, and 4G sites, detects
-faults, classifies probable causes, and presents deterministic troubleshooting actions and
-historical site records.
+<div align="center">
 
-The portfolio repository was reconstructed as a clean implementation, then the historical
-Ericsson project artifacts and labeled validation dataset were recovered for investigation. The
-original materials remain local and Git-ignored; the modern implementation keeps them separate
-from the new training and inference pipeline.
+# 📡 NETWORK FAULT INTELLIGENCE
+### A Deep Learning & Network Intelligence Platform
 
-## Current status
+<p>
+  <img src="https://img.shields.io/badge/DOMAIN-TELECOMMUNICATIONS-0B2538?style=for-the-badge&labelColor=071321" alt="Telecommunications" />
+  <img src="https://img.shields.io/badge/NETWORKS-2G%20%7C%203G%20%7C%204G-087F8C?style=for-the-badge&labelColor=071321" alt="2G, 3G and 4G" />
+  <img src="https://img.shields.io/badge/ML-LSTM-00A896?style=for-the-badge&labelColor=071321" alt="LSTM" />
+</p>
 
-The backend provides validated KPI input, the modern ML inference service, rule-based
-recommendations, health endpoints, and SQLite prediction history. The rebuilt models and fitted
-scaler remain local and ignored by Git pending provenance review. `/v1/predictions` uses only the
-new `.keras` models and persisted preprocessing artifact; missing or unloadable artifacts produce
-a structured `503` rather than a fabricated result.
+<p>
+  <img src="https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
+  <img src="https://img.shields.io/badge/ML_FRAMEWORK-Keras-D00000?style=flat-square&logo=keras&logoColor=white" alt="Keras" />
+  <img src="https://img.shields.io/badge/DATA-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/CONTAINERS-Docker-2496ED?style=flat-square&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/ORCHESTRATION-Kubernetes-326CE5?style=flat-square&logo=kubernetes&logoColor=white" alt="Kubernetes" />
+  <img src="https://img.shields.io/badge/LANGUAGE-Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
+</p>
 
-The repository includes a same-origin, dependency-free operator interface served by FastAPI.
-The site exploration view plots only coordinates recorded in prediction history; it is not a live map. The modern FastAPI application includes username/password authentication with server-side SQLite sessions; the historical Flask implementation was not copied.
+**From mobile-network KPIs to structured fault investigations.**
 
-## Research workflow and ML contract
+A modernized research platform for network fault detection, fault-cause classification, deterministic troubleshooting, and historical investigation workflows.
 
-The documented original input features are Retainability, HOSR, RSRP, RSRQ, SINR, average
-throughput, and mobile-station-to-site distance, plus cell, coordinates, and date. The API accepts
-these features without imposing thesis KPI thresholds or fitting normalization against incoming
-production requests.
+<br />
 
-The recovered taxonomy uses classes 1–6 for fault causes and class 7 for Normal. The modern binary
-target is derived from that taxonomy: `FaultCause` 1–6 = Fault, 7 = Normal. The dataset has no
-separate binary annotation. The modern pipeline uses a seven-feature `(batch, 1, 7)` LSTM input
-contract and a `StandardScaler` fitted only on training rows. A persisted scaler is used for
-inference; inference never fits preprocessing on incoming values.
+[ Explore the Repository](https://github.com/ghozlanetata/network-fault-intelligence-platform)
+&nbsp; · &nbsp;
+[ API Documentation](#-api-reference)
+&nbsp; · &nbsp;
+[ ML Pipeline](#-modernized-ml-pipeline)
 
-Recommendations are deterministic rules, not AI or model output:
+</div>
 
-| Cause | Actions |
-| --- | --- |
-| ED — Excessive Downtilt | Check Bandwidth Capacity Configuration; Check Frequency Configuration; Check Tilt Configuration; Check Load Balance |
-| EU — Excessive Uptilt | ED actions plus Check Synchronization of Cell |
-| TLHO — Too Late HandOver | Check Handover Execution |
-| II — Inter-System Interference | Check Planification of Sites; Check Frequency Configuration; Check Coverage |
-| CH — Coverage Hole | Check Power Configuration; Check Cell Range; Check Tilt Configuration |
-| RP — Reduction of Cell Power | Check if RRU is Faulty; Check Licence; Check Power on Site |
-| Normal | No troubleshooting action |
+---
 
-## Modernized ML Pipeline
+## 🛰️ The project
 
-This project originated as an Ericsson internship and Master's project on self-healing and fault
-recognition in wireless networks. The original system used LSTM models; its HDF5 files and source
-findings were recovered as historical evidence. Those artifacts have compatibility and training
-provenance limitations, so the model pipeline was rebuilt from scratch using modern Keras rather
-than adapting the old HDF5 files for current inference.
+Network Fault Intelligence (NFI) is a software engineering and machine-learning platform developed from the foundation of my Master's thesis and internship project on **deep-learning-based fault recognition and self-healing in wireless networks**.
 
-Binary fault detection and multiclass fault-cause classification are separate models. The
-deterministic `StratifiedGroupKFold` split keeps identical seven-feature vectors in one partition.
-The saved preprocessing artifact contains the feature order and a scaler fitted on training data
-only. The reusable inference layer validates named input features, loads that scaler and both
-models, and does not refit preprocessing. FastAPI consumes this inference layer through
-`POST /v1/predictions`; the original HDF5 artifacts are not part of this path.
+The original research focused on analyzing drive-test and mobile-network performance indicators across 2G, 3G, and 4G environments. The modernized implementation brings that research into a structured application with validated API contracts, separate fault-detection and fault-classification models, deterministic troubleshooting rules, persistent prediction history, authentication, and role-based investigation workflows.
 
-On the recovered 1,137-row dataset, seed 42 produced 812 train, 162 validation, and 163 untouched
-test rows, with no feature groups shared across splits. The validation audit measured 99.39%
-multiclass test accuracy and 95.09% binary accuracy. The dataset's provenance relative to original
-model development is unknown, so these results do not establish independent or field performance.
-The API exposes binary/multiclass disagreements as `REVIEW_REQUIRED`, without inventing a fault
-cause. Historical thesis numbers are not treated as the current benchmark.
+The platform is designed to connect three areas:
 
-Train locally with the isolated Python 3.13 environment after installing the ML extra:
+- **Network engineering:** mobile-network KPIs, site context, and fault investigation.
+- **Machine learning:** binary fault detection and multiclass fault-cause classification.
+- **Platform engineering:** FastAPI, persistent storage, containerization, and Kubernetes deployment configuration.
 
-```powershell
-# Create once, if the ignored environment does not already exist.
-py -3.13 -m venv .v313
-.\.v313\Scripts\python.exe -m pip install -e ".[dev,ml]"
-.\.v313\Scripts\python.exe -m app.ml.train --dataset .\db_fm_validation14.csv --seed 42 --epochs 150 --batch-size 32
-```
+The historical project materials were recovered for investigation and remain separate from the modern implementation. The current training and inference pipeline was rebuilt using modern Keras rather than relying on the historical HDF5 models.
 
-The command writes `.keras` models, `preprocessing.joblib`, and `model_metadata.json` under
-`models/`, plus metrics and a human-readable report under `artifacts/ml/`. Generated artifacts
-remain ignored by Git pending review of Ericsson-derived information. The source dataset and
-`artifacts/original/` remain ignored and untouched.
+## 🖥️ A glimpse inside
 
-## Architecture
+<!--
+Add your own recorded dashboard GIF at:
+docs/media/nfi-dashboard.gif
+
+Capture the actual application rather than simulated telemetry.
+Keep the animation short, legible, and optimized for GitHub.
+-->
+
+<div align="center">
+  <img
+    src="docs/media/nfi-dashboard.gif"
+    alt="Network Fault Intelligence operator interface walkthrough"
+    width="94%"
+  />
+  <p><em>Operator interface preview — replace this placeholder with an actual dashboard recording.</em></p>
+</div>
+
+<!-- Optional screenshots. Add the image files before uncommenting.
+
+<div align="center">
+  <img src="docs/screenshots/nfi-overview.png" alt="NFI overview dashboard" width="48%" />
+  <img src="docs/screenshots/nfi-analysis.png" alt="NFI network fault analysis" width="48%" />
+</div>
+
+-->
+
+The interface includes an overview, network health and site exploration, KPI analysis, prediction history, investigation workflows, and role-specific administration views.
+
+The site exploration view plots recorded coordinates from prediction history; it is not a live map service. Dashboard metrics are derived from stored records rather than invented live telemetry.
+
+## 🧭 Table of contents
+
+- [Project overview](#-the-project)
+- [Current implementation status](#-current-implementation-status)
+- [System architecture](#-system-architecture)
+- [Research workflow and KPI contract](#-research-workflow-and-kpi-contract)
+- [Modernized ML pipeline](#-modernized-ml-pipeline)
+- [Fault taxonomy and recommendations](#-fault-taxonomy-and-recommendations)
+- [Project structure](#-project-structure)
+- [Modern operator interface](#-modern-operator-interface)
+- [API reference](#-api-reference)
+- [Authentication and authorization](#-authentication-and-authorization)
+- [Local development](#-local-development)
+- [Docker](#-docker)
+- [Kubernetes](#-kubernetes)
+- [Data and security](#-data-and-security)
+- [Testing and CI](#-testing-and-ci)
+- [Limitations and next steps](#-limitations-and-next-steps)
+
+---
+
+## 🚦 Current implementation status
+
+| Component | Status and scope |
+|---|---|
+| FastAPI application | Implemented |
+| KPI validation and prediction API | Implemented; requires loadable local model artifacts for successful inference |
+| Binary and multiclass ML pipeline | Rebuilt; evaluation documented below |
+| Persisted preprocessing | Training-fitted `StandardScaler` and feature metadata |
+| Troubleshooting recommendations | Deterministic rule-based implementation |
+| Prediction history | SQLite-backed |
+| Operator interface | FastAPI-served HTML, CSS, and vanilla JavaScript |
+| Authentication and RBAC | Application-level login, sessions, and role-based authorization |
+| Investigation workflows | Implemented with separate predicted, proposed, and verified outcomes |
+| Docker configuration | Implemented; image build and runtime verification pending |
+| Kubernetes manifests | Implemented and statically inspected; live-cluster deployment not verified |
+| Production readiness | Not established |
+
+**Important:** implementation does not imply production verification. Docker and Kubernetes runtime validation remain outstanding in the development environment described by this repository.
+
+---
+
+## 🏗️ System architecture
+
+The application uses a single FastAPI backend to serve both the operator interface and the API. Machine-learning inference is kept behind an internal interface, while troubleshooting recommendations are generated by deterministic domain rules.
 
 ```mermaid
 flowchart TB
-  KPI[Drive-test / network KPI input] --> API[FastAPI validation and domain API]
-  API --> INF[Versioned ML inference interface]
-  INF --> API
-  API --> RULES[Deterministic recommendation rules]
-  API --> DB[(SQLite prediction history)]
-  DB --> API
-  API --> UI[FastAPI-served operator interface]
-  subgraph K8s[Kubernetes namespace]
-    API
-    INF
-    RULES
-    DB
-  end
+    subgraph INPUT["01 · Network data"]
+        KPI["Drive-test KPIs<br/>7 numerical features"]
+        CONTEXT["Site context<br/>Cell · Coordinates · Date"]
+    end
+
+    subgraph APP["02 · FastAPI application"]
+        VALIDATE["Input validation"]
+        INFER["Versioned ML inference"]
+        POLICY["Prediction consistency policy"]
+        RULES["Deterministic recommendations"]
+        AUTH["Authentication & RBAC"]
+    end
+
+    subgraph DATA["03 · Persistence"]
+        DB[("SQLite")]
+        HISTORY["Prediction history"]
+        INVESTIGATIONS["Investigation records"]
+    end
+
+    subgraph UI["04 · Operator experience"]
+        OVERVIEW["Overview & Network Health"]
+        ANALYSIS["KPI analysis"]
+        REVIEW["Investigation & review"]
+    end
+
+    KPI --> VALIDATE
+    CONTEXT --> VALIDATE
+    VALIDATE --> INFER
+    INFER --> POLICY
+    POLICY --> RULES
+    POLICY --> DB
+    DB --> HISTORY
+    DB --> INVESTIGATIONS
+    AUTH --> UI
+    HISTORY --> OVERVIEW
+    POLICY --> ANALYSIS
+    INVESTIGATIONS --> REVIEW
+
+    classDef input fill:#0D3345,stroke:#43D9F5,color:#F0F9FF
+    classDef processing fill:#102D3D,stroke:#35B9C8,color:#F0F9FF
+    classDef storage fill:#25321F,stroke:#57D99B,color:#F0F9FF
+    classDef interface fill:#182D50,stroke:#7DA7FF,color:#F0F9FF
+
+    class KPI,CONTEXT input
+    class VALIDATE,INFER,POLICY,RULES,AUTH processing
+    class DB,HISTORY,INVESTIGATIONS storage
+    class OVERVIEW,ANALYSIS,REVIEW interface
 ```
 
-The current deployable workload is a single backend container. Inference remains an internal
-backend interface; integrate the validated local models before deployment and measure load before
-considering a separate service. The single-replica deployment stores prediction history and authentication data in SQLite. A multi-replica deployment requires shared relational history and session storage.
+The deployed configuration is designed around a **single backend container**. The inference interface remains internal to the backend; a separate inference service should only be considered after validating the models and measuring actual workload requirements.
 
-## Project layout
+The single-replica Kubernetes setup uses SQLite for history and authentication data. It is a local demonstration architecture, not a high-availability or multi-replica database design.
 
-| Path | What it contains |
-| --- | --- |
+---
+
+## 📊 Research workflow and KPI contract
+
+The documented research input features are:
+
+| Feature | Purpose |
+|---|---|
+| `retainability` | Network service retainability indicator |
+| `hosr` | Handover success-rate indicator |
+| `rsrp` | Reference Signal Received Power |
+| `rsrq` | Reference Signal Received Quality |
+| `sinr` | Signal-to-Interference-plus-Noise Ratio |
+| `average_throughput` | Average observed throughput |
+| `distance` | Mobile-station-to-site distance |
+
+Additional contextual fields include cell identity, geographic coordinates, and date.
+
+The API validates the seven required numerical features without imposing uncertain thesis KPI thresholds. Incoming production requests are not used to fit or refit preprocessing.
+
+The pipeline follows this contract:
+
+1. Validate named KPI features and optional site context.
+2. Apply the persisted training-fitted preprocessing artifact.
+3. Obtain independent binary and multiclass model outputs.
+4. Apply a consistency policy before returning the final operational status.
+5. Provide deterministic troubleshooting recommendations only when the final result supports them.
+6. Store prediction history for subsequent analysis and investigation.
+
+Non-finite numerical inputs are rejected. Coordinates are checked against geographic bounds, and unknown request fields are rejected.
+
+---
+
+## 🧠 Modernized ML pipeline
+
+### Two separate prediction tasks
+
+The platform uses two distinct LSTM models:
+
+- **Binary fault detection:** predicts whether the sample represents a fault or normal operation.
+- **Multiclass classification:** predicts one of six fault causes or the Normal class.
+
+The multiclass taxonomy assigns classes 1–6 to fault causes and class 7 to Normal. The binary target is derived from that taxonomy:
+
+- `FaultCause` 1–6 → `Fault`
+- `FaultCause` 7 → `Normal`
+
+The recovered dataset does not contain a separate binary annotation. The binary labels are derived, not independently supplied ground truth.
+
+### Preprocessing and inference contract
+
+The modern pipeline uses a seven-feature LSTM input shape of `(batch, 1, 7)`.
+
+A `StandardScaler` is fitted using training rows only and persisted with the feature order. The inference layer validates named features, loads the persisted scaler and models, and never fits preprocessing on incoming requests.
+
+The modern inference path uses the following artifacts:
+
+```text
+models/
+├── binary_fault_detector.keras
+├── fault_cause_classifier.keras
+├── preprocessing.joblib
+└── model_metadata.json
+```
+
+The historical HDF5 artifacts are not used by the current prediction endpoint.
+
+If model or preprocessing artifacts are missing or fail to load, the API reports degraded readiness and returns a structured `503` response for prediction requests. It does not fabricate a prediction.
+
+### Evaluation and provenance
+
+The recovered dataset contains 1,137 rows. With seed 42, the grouped split produced:
+
+| Partition | Rows |
+|---|---:|
+| Training | 812 |
+| Validation | 162 |
+| Untouched test | 163 |
+| **Total** | **1,137** |
+
+A deterministic `StratifiedGroupKFold` split keeps identical seven-feature vectors in the same partition. The audit reported no feature groups shared across the three partitions.
+
+The reported evaluation results were:
+
+<div align="center">
+  <table>
+    <tr>
+      <th align="center">Binary fault detection</th>
+      <th align="center">Multiclass classification</th>
+    </tr>
+    <tr>
+      <td align="center">
+        <h2>95.09%</h2>
+        <sub>Reported test accuracy</sub>
+      </td>
+      <td align="center">
+        <h2>99.39%</h2>
+        <sub>Reported test accuracy</sub>
+      </td>
+    </tr>
+  </table>
+</div>
+
+These figures describe the recorded audit of the recovered dataset. The dataset's provenance relative to the original model development could not be established. Consequently, the results **do not demonstrate independent generalization or performance on live mobile-network traffic**.
+
+The API exposes disagreements between binary and multiclass fault-versus-normal decisions as `REVIEW_REQUIRED`. In these cases, it returns no final cause and no troubleshooting recommendations.
+
+Historical thesis metrics are not presented as the benchmark for the modernized models.
+
+### Training locally
+
+Training requires Python 3.13 and the ML dependencies.
+
+```powershell
+# Create the environment once, if it does not already exist.
+py -3.13 -m venv .v313
+
+# Install development and ML dependencies.
+.\.v313\Scripts\python.exe -m pip install -e ".[dev,ml]"
+
+# Train the modern models using the recovered dataset.
+.\.v313\Scripts\python.exe -m app.ml.train --dataset .\db_fm_validation14.csv --seed 42 --epochs 150 --batch-size 32
+```
+
+The training command writes the `.keras` models, `preprocessing.joblib`, and `model_metadata.json` under `models/`, with metrics and a human-readable report under `artifacts/ml/`.
+
+Generated models, datasets, and historical artifacts remain ignored by Git pending provenance and publication review. The original dataset and `artifacts/original/` are kept separate and untouched.
+
+---
+
+## 🧰 Fault taxonomy and recommendations
+
+Troubleshooting recommendations are **deterministic rules, not model-generated output**.
+
+| Cause | Meaning | Recommended checks |
+|---|---|---|
+| ED | Excessive Downtilt | Bandwidth capacity, frequency, tilt, and load-balance configuration |
+| EU | Excessive Uptilt | ED checks plus cell synchronization |
+| TLHO | Too Late HandOver | Handover execution |
+| II | Inter-System Interference | Site planning, frequency configuration, and coverage |
+| CH | Coverage Hole | Power configuration, cell range, and tilt configuration |
+| RP | Reduction of Cell Power | RRU condition, licence, and site power |
+| Normal | No classified fault | No troubleshooting action |
+
+The final operational response respects the consistency policy. A disagreement between the binary and multiclass decisions results in `REVIEW_REQUIRED`, with no fabricated cause or unsupported recommendation.
+
+---
+
+## 🗂️ Project structure
+
+```text
+network-fault-intelligence-platform/
+├── app/
+│   ├── main.py
+│   ├── auth.py
+│   ├── authorization.py
+│   ├── inference.py
+│   ├── repository.py
+│   ├── investigations.py
+│   ├── network_health.py
+│   ├── ml/
+│   └── ui/
+│       ├── index.html
+│       └── assets/
+│           ├── app.js
+│           └── ...
+├── migrations/
+├── tests/
+├── k8s/
+├── artifacts/
+├── models/
+├── data/
+├── Dockerfile
+├── pyproject.toml
+└── README.md
+```
+
+| Path | Responsibility |
+|---|---|
 | `app/main.py` | FastAPI application, routes, and startup wiring |
 | `app/auth.py`, `app/authorization.py` | Account storage, sessions, and role checks |
 | `app/inference.py`, `app/ml/` | Model loading, request adaptation, dataset preparation, and training |
-| `app/repository.py`, `app/investigations.py`, `app/network_health.py` | SQLite access for predictions, investigations, and network health runs |
-| `app/ui/` | Same-origin operator interface (HTML, CSS, and JavaScript) |
-| `migrations/` | Alembic schema changes |
+| `app/repository.py`, `app/investigations.py`, `app/network_health.py` | Persistence for predictions, investigations, and network health |
+| `app/ui/` | Same-origin HTML, CSS, and JavaScript operator interface |
+| `migrations/` | Alembic schema migrations |
 | `tests/` | API, migration, authentication, investigation, and ML pipeline tests |
 | `Dockerfile`, `k8s/` | Container image and Kubernetes manifests |
 | `artifacts/`, `models/`, `data/` | Local generated outputs and runtime data; ignored by Git |
 
-## API
+The exact file inventory can evolve as the implementation changes. The historical Ericsson project artifacts and recovered source dataset are not intended to be published as part of the modern repository.
 
-FastAPI publishes OpenAPI and Swagger UI at `/docs` for authenticated `platform_ml_admin` users;
-the schema also exposes privileged model response contracts and is not available to operators.
+---
 
-| Method and path | Purpose |
-| --- | --- |
-| `GET /health/live` | Process liveness |
-| `GET /health/ready` | Database readiness and whether model/scaler artifacts loaded |
-| `POST /v1/auth/login` | Verify credentials and issue an HTTP-only session cookie |
-| `POST /v1/auth/logout` | Invalidate the current session |
-| `GET /v1/auth/me` | Return current user or `401` |
-| `POST /v1/predictions` | Authenticated: validate seven KPI features, return both predictions, apply consistency policy, record result |
-| `POST /v1/recommendations` | Authenticated: return cause name and deterministic troubleshooting actions |
-| `GET /v1/history?limit=100` | Authenticated: return recent prediction records |
-| `GET /v1/ml/evaluation` | Platform/ML Admin: cause-classification metrics from verified investigations |
-| `GET /v1/ml/verified-outcomes` | Platform/ML Admin: read-only evidence cases in the evaluation population |
+## 🖥️ Modern operator interface
 
-## Modern UI
+The UI is a lightweight HTML, CSS, and vanilla JavaScript application under `app/ui/`, served by FastAPI at `/` and `/assets`.
 
-The operator interface is a small HTML, CSS, and vanilla JavaScript application under
-`app/ui/`, served by FastAPI at `/` and `/assets`. Keeping it on the API origin avoids a separate
-frontend service and CORS configuration. The frontend API client is centralized in
-`app/ui/assets/app.js`; it calls `/health/live`, `/health/ready`, `POST /v1/predictions`, and
-`GET /v1/history?limit=500`. No JavaScript package or map dependency is required.
+Keeping the interface on the API origin avoids a separate frontend service and CORS configuration. The frontend API client is centralized in `app/ui/assets/app.js`; it calls `/health/live`, `/health/ready`, `POST /v1/predictions`, and `GET /v1/history?limit=500`.
 
-The Overview metrics and recent detections are derived from real history rows. Network Sites
-plots only recorded latitude/longitude values and lists each site's latest returned record; it
-does not claim to be a map tile service. History supports text search, status filtering, and a
-detail panel. Analyze submits the seven required KPIs and optional cell, coordinate, and date
-context to the API. Probability outputs, final status, and recommendations are rendered from the
-response; model disagreement remains `REVIEW_REQUIRED` and does not receive a final cause or
-recommendations. System Status displays API liveness and readiness results.
+### Main capabilities
 
-Run the UI locally through the existing FastAPI development command:
+- **Overview:** metrics and recent detections derived from prediction history.
+- **Network Health:** operational views for network health runs and investigations.
+- **Network Sites:** geographic plotting of recorded latitude/longitude values and each site's latest returned record.
+- **Analyze:** submit the seven required KPI features with optional cell, coordinate, and date context.
+- **History:** search, filter by status, and inspect prediction details.
+- **Investigation Queue:** review submitted cases and maintain separate predicted, proposed, and verified causes.
+- **Platform/ML Admin workspace:** aggregate evaluation and a read-only verified-outcomes evidence page.
+- **System Status:** view API liveness and readiness information.
+
+Probability outputs, final status, and recommendations are rendered from API responses. Model disagreements remain `REVIEW_REQUIRED` and do not receive a final cause or recommendations.
+
+The UI does not require a JavaScript package installation or an external map dependency.
+
+### Run the UI locally
 
 ```powershell
-\.v313\Scripts\python.exe -m uvicorn app.main:app --reload
-```
-
-Open `http://127.0.0.1:8000/`. The UI uses same-origin API paths by default, so no API URL setting
-or CORS configuration is needed. If hosting the static assets separately, proxy the API paths to
-the FastAPI service; the API base is intentionally centralized in the `API` client in
-`app/ui/assets/app.js`.
-
-Frontend checks require no installation: use a JavaScript runtime's syntax checker on
-`app/ui/assets/app.js` (for example, `node --check app/ui/assets/app.js`) and inspect the page via
-the local FastAPI service. Python tests and lint remain the backend checks described below.
-
-Required request fields are `retainability`, `hosr`, `rsrp`, `rsrq`, `sinr`,
-`average_throughput`, and `distance`. Optional history context is `cell`, `latitude`, `longitude`,
-and ISO `date`. Numeric inputs must be finite JSON numbers; coordinates are checked against
-geographic bounds, without imposing uncertain radio KPI thresholds. Unknown fields are rejected.
-
-The versioned response includes the binary fault probability and its explicit 0.5 decision
-threshold, the multiclass winner and all seven probabilities, final status, and deterministic
-recommendations. A mismatch between binary and multiclass fault-vs-normal decisions returns
-`REVIEW_REQUIRED`, no final cause, and no recommendations. History stores input KPIs, both model
-outputs, final status, timestamp, and model version.
-
-## Local development
-
-Requires Python 3.13 and the local model artifacts for ML prediction. Install the `ml` extra to
-load TensorFlow and the preprocessing dependencies; without loadable artifacts the API stays alive
-but readiness is degraded and predictions return `503`.
-
-```powershell
-py -3.13 -m venv .v313
-.\.v313\Scripts\python.exe -m pip install -e ".[dev,ml]"
 .\.v313\Scripts\python.exe -m uvicorn app.main:app --reload
 ```
 
-The service listens on `http://127.0.0.1:8000`. Configuration uses `NFI_DATABASE_PATH`,
-`NFI_MODEL_DIR`, and `NFI_LOG_LEVEL`; `.env` is ignored by Git. See FastAPI authentication below for the initial operator bootstrap settings.
+Open [http://127.0.0.1:8000/](http://127.0.0.1:8000/).
 
-## Docker
+The interface uses same-origin API paths by default. If the static assets are hosted separately, proxy the API paths to FastAPI; the API base is centralized in the `API` client in `app/ui/assets/app.js`.
 
-The Dockerfile and container configuration are implemented, and the UI files are included through
-the existing `COPY app ./app` step. Docker image build and container runtime verification are
-pending on this workstation because Docker is unavailable here. The
-commands below describe how to build and run the image in an environment with Docker installed;
-they are not evidence that these commands have already been executed.
+A frontend syntax check can be performed without installing frontend dependencies:
 
-Build the Python 3.13 image (TensorFlow and the current ML runtime are installed from the
-`[ml]` extra in `pyproject.toml`):
+```powershell
+node --check app/ui/assets/app.js
+```
+
+The API's required prediction fields are `retainability`, `hosr`, `rsrp`, `rsrq`, `sinr`, `average_throughput`, and `distance`. Optional history context includes `cell`, `latitude`, `longitude`, and ISO `date`.
+
+---
+
+## 🔌 API reference
+
+FastAPI publishes OpenAPI and Swagger UI at `/docs` for authenticated `platform_ml_admin` users. The schema exposes privileged model response contracts and is not available to operators.
+
+| Method | Endpoint | Purpose |
+|---|---|---|
+| `GET` | `/health/live` | Process liveness; public for probes |
+| `GET` | `/health/ready` | Database readiness and model/scaler availability |
+| `POST` | `/v1/auth/login` | Verify credentials and issue a session cookie |
+| `POST` | `/v1/auth/logout` | Invalidate the current session |
+| `GET` | `/v1/auth/me` | Return the current user or `401` |
+| `POST` | `/v1/predictions` | Validate KPIs, return model outputs, apply consistency policy, and record history |
+| `POST` | `/v1/recommendations` | Return cause name and deterministic troubleshooting actions |
+| `GET` | `/v1/history?limit=100` | Return recent prediction records |
+| `GET` | `/v1/ml/evaluation` | Platform/ML Admin: cause-classification metrics from verified investigations |
+| `GET` | `/v1/ml/verified-outcomes` | Platform/ML Admin: read-only evidence cases in the evaluation population |
+
+### Prediction response contract
+
+The versioned response includes the binary fault probability and explicit `0.5` decision threshold, the multiclass winner and all seven class probabilities, final status, and deterministic recommendations.
+
+A mismatch between the binary and multiclass fault-versus-normal decisions produces `REVIEW_REQUIRED`, without a final cause or recommendations.
+
+Prediction history stores the input KPIs, both model outputs, final status, timestamp, and model version. Access to privileged response fields is controlled by the API rather than by the frontend.
+
+---
+
+## 🔐 Authentication and authorization
+
+The modernized application implements FastAPI username/password authentication. This is a new implementation; the historical Ericsson application used Flask authentication.
+
+### Session handling
+
+- Passwords are hashed with Argon2 via `pwdlib`.
+- Random opaque session tokens are issued through an `HttpOnly` cookie.
+- Only SHA-256 token digests and expiry timestamps are stored in SQLite.
+- Session lifetime defaults to eight hours.
+- Expired sessions are removed when expired sessions are encountered or new sessions are created.
+- There is no public signup or role-assignment endpoint.
+
+`POST /v1/auth/login` accepts `username` and `password`, sets the session cookie, and returns basic user details including the database-backed role. `GET /v1/auth/me` returns the current user or `401`; `POST /v1/auth/logout` invalidates the current session and clears the cookie.
+
+Prediction, history, and recommendation endpoints require an active authenticated session. Liveness and readiness endpoints remain public for container probes.
+
+The UI checks `/v1/auth/me` on startup and displays a sign-in view when unauthenticated. The application shell shows the signed-in account and logout action.
+
+### Roles
+
+| Role | Responsibility |
+|---|---|
+| `operator` | Analyze network KPIs, inspect history and network health, record findings, and submit cases for review |
+| `network_admin` | Review submitted cases through the Investigation Queue and verification workflow |
+| `platform_ml_admin` | Access privileged model/evaluation fields, API documentation, aggregate ML evaluation, and verified-outcome evidence |
+
+The investigation workflow preserves the original predicted cause, investigator proposal, and verified cause as separate fields. Outcomes can be verified, unresolved, or unknown through the existing verification workflow. Editable drafts are excluded from the investigation queue.
+
+Verified-outcome evaluation uses the same eligibility rules as aggregate evaluation and preserves unknown model provenance as unattributed. Training and model-management functions are not implemented.
+
+Operators and network administrators receive operational statuses, predicted causes, recommendations, and the seven input KPIs. Their prediction, history, and Network Health API responses omit probabilities, classifier internals, model metadata, evaluation metrics, training data, and ground-truth labels.
+
+Roles are loaded from the user database row on every request, so a role change affects existing sessions on the next request. The browser's role display is for navigation and presentation; the API enforces authorization.
+
+### Cookie and cross-origin behavior
+
+Cookies use `SameSite=Lax` and `HttpOnly`. The local default does not set `Secure`, allowing the development UI to work at `http://localhost:8000`. For HTTPS deployment, configure `NFI_COOKIE_SECURE=true`.
+
+Browser write endpoints reject explicit cross-origin requests. The same-origin UI does not require a JavaScript-readable CSRF token. Keep the UI and API on the same origin.
+
+### Initial account setup
+
+For local setup, create an ignored `.env` file with `NFI_BOOTSTRAP_USERNAME` and `NFI_BOOTSTRAP_PASSWORD` set to a unique account, then start the API.
+
+The optional `NFI_BOOTSTRAP_ROLE` defaults to `operator`. Set a privileged role only through trusted server-side configuration when creating the initial account.
+
+Bootstrap never promotes or changes an existing account. Remove bootstrap credentials after initial creation. For an existing account, role assignment requires controlled database administration. For example, an authorized administrator may run:
+
+```sql
+UPDATE users
+SET role = 'platform_ml_admin'
+WHERE username = 'admin@example.test';
+```
+
+Run database administration only with authorized access to the correct database. The database constraint rejects values outside the three supported roles.
+
+### Authentication configuration
+
+| Variable | Default | Purpose |
+|---|---|---|
+| `NFI_SESSION_TTL` | `28800` | Session lifetime in seconds |
+| `NFI_COOKIE_SECURE` | `false` | Require HTTPS for the session cookie |
+| `NFI_COOKIE_SAMESITE` | `lax` | Session cookie SameSite policy |
+| `NFI_BOOTSTRAP_USERNAME` | Unset | Initial controlled account username/email |
+| `NFI_BOOTSTRAP_PASSWORD` | Unset | Initial password; never logged or stored in plaintext |
+| `NFI_BOOTSTRAP_ROLE` | `operator` | Role assigned to a newly created bootstrap account only |
+
+The additive `0005_user_roles` Alembic migration adds a checked role column and assigns existing users `operator`; it does not modify prediction history.
+
+For deployment, provide credentials through a Kubernetes Secret rather than a ConfigMap, use a strong unique bootstrap password, and configure TLS termination before enabling secure cookies.
+
+Login throttling is not implemented in this phase; production deployment should add rate limiting at the ingress or reverse proxy. This is application authentication, not enterprise SSO, OAuth, or a security certification.
+
+---
+
+## ⚙️ Local development
+
+### Requirements
+
+- Python 3.13
+- Git
+- Local model artifacts for successful ML inference
+- Docker or Kubernetes only if testing those deployment paths
+
+Without loadable model artifacts, the API can remain alive while readiness is degraded and prediction requests return a structured `503`.
+
+### Install and run
+
+```powershell
+py -3.13 -m venv .v313
+
+.\.v313\Scripts\python.exe -m pip install -e ".[dev,ml]"
+
+.\.v313\Scripts\python.exe -m uvicorn app.main:app --reload
+```
+
+The development server listens at [http://127.0.0.1:8000](http://127.0.0.1:8000).
+
+Configuration uses the following environment variables:
+
+- `NFI_DATABASE_PATH`
+- `NFI_MODEL_DIR`
+- `NFI_LOG_LEVEL`
+
+The `.env` file is ignored by Git. Review the authentication setup before creating the initial local account.
+
+---
+
+## 🐳 Docker
+
+The Dockerfile and container configuration are implemented, and the UI is included through the existing `COPY app ./app` step.
+
+**Verification status:** image build and container runtime verification were pending on the development workstation because Docker was unavailable. The commands below describe how to test the image in an environment with Docker installed; they are not evidence that these commands have already succeeded.
+
+### Build the image
 
 ```powershell
 docker build -t network-fault-intelligence-platform:local .
 ```
 
-The configured image runs as UID 10001 and contains no model artifacts or secrets. Models and
-preprocessing are external runtime artifacts and are not included in this Git repository. To check
-degraded mode in a Docker-enabled environment without mounting them:
+The image uses Python 3.13, installs the ML dependencies from the `ml` extra in `pyproject.toml`, and runs as UID `10001`. Model artifacts and secrets are not included in the image.
+
+### Check degraded mode without models
 
 ```powershell
 docker run -d --name nfi-no-models -p 8000:8000 `
   -e NFI_DATABASE_PATH=/app/data/nfi.sqlite3 `
   -v nfi-history:/app/data `
   network-fault-intelligence-platform:local
+
 Invoke-RestMethod http://localhost:8000/health/live
 Invoke-RestMethod http://localhost:8000/health/ready
 ```
 
-The expected behavior is that readiness reports inference unavailable while liveness remains
-available. Predictions return a structured `503` until the four current artifacts are supplied.
-To run with local artifacts in `models/`, mount that directory read-only:
+Expected behavior:
+
+- Liveness remains available.
+- Readiness reports inference unavailable while the required artifacts are missing.
+- Prediction requests return a structured `503` until all four current artifacts are supplied.
+
+### Run with local model artifacts
 
 ```powershell
 $ModelPath = (Resolve-Path .\models).Path
+
 docker run -d --name nfi-with-models -p 8000:8000 `
   -e NFI_MODEL_DIR=/app/models `
   -e NFI_DATABASE_PATH=/app/data/nfi.sqlite3 `
   -v nfi-history:/app/data `
   --mount "type=bind,source=$ModelPath,target=/app/models,readonly" `
   network-fault-intelligence-platform:local
+
 Invoke-RestMethod http://localhost:8000/health/ready
 Invoke-WebRequest http://localhost:8000/docs
 Invoke-WebRequest http://localhost:8000/openapi.json
 ```
 
-Submit a seven-feature request using Swagger UI at `http://localhost:8000/docs`. The model
-directory must contain `binary_fault_detector.keras`, `fault_cause_classifier.keras`,
-`preprocessing.joblib`, and `model_metadata.json`. No historical HDF5 model is used. Remove each
-container with `docker rm -f nfi-no-models` or `docker rm -f nfi-with-models` when finished.
+Submit a seven-feature request through Swagger UI at `http://localhost:8000/docs` after configuring an authorized account and confirming readiness.
 
-## Deployment
+Remove test containers when finished:
 
-The repository implements this deployment path:
-
-```text
-FastAPI / ML application
-        ↓
-Docker containerization
-        ↓
-Kubernetes deployment manifests
+```powershell
+docker rm -f nfi-no-models
+docker rm -f nfi-with-models
 ```
 
-The configuration includes health/readiness probes, resource requests and limits, non-root
-execution, persistent storage, and externally supplied ML model artifacts. The Docker and
-Kubernetes configurations are implemented in the repository. Runtime verification is pending
-because the current corporate development workstation does not provide Docker or a local
-Kubernetes runtime. The application has been verified through its existing test suite; Kubernetes
-manifests have been statically inspected, but have not been deployed to a live cluster here.
+---
 
-## Kubernetes
+## ☸️ Kubernetes
 
-Kubernetes is part of the modernized implementation; it was not used by the original Ericsson
-Master's project. The manifests configure the FastAPI container in namespace `nfi`, with a
-ClusterIP service, persistent PVCs for SQLite history and externally supplied model files, and
-startup, liveness, and readiness probes. They specify one replica because SQLite and the
-ReadWriteOnce volumes are not a multi-replica production persistence design. No Secret is needed
-by the current application.
+Kubernetes is part of the modernized implementation; it was not used by the original Master's project.
 
-To deploy in an environment with `kubectl` and a Kubernetes cluster, first build the Docker image
-as described above. Load the local image into the chosen cluster, for
-example `kind load docker-image network-fault-intelligence-platform:local` or
-`minikube image load network-fault-intelligence-platform:local`. Then inspect and apply:
+The manifests configure the FastAPI container in namespace `nfi`, with a ClusterIP service, persistent volume claims for SQLite history and externally supplied model files, and startup, liveness, and readiness probes.
+
+**Verification status:** manifests have been statically inspected but have not been deployed to a live cluster in the documented workstation environment.
+
+The configuration uses one replica because SQLite and the `ReadWriteOnce` volumes are not a supported multi-replica persistence design.
+
+### 1. Build and load the image
+
+Build the image using the Docker instructions above. Load it into your chosen local cluster, for example:
+
+```powershell
+kind load docker-image network-fault-intelligence-platform:local
+```
+
+Or, when using Minikube:
+
+```powershell
+minikube image load network-fault-intelligence-platform:local
+```
+
+### 2. Inspect and apply the manifests
 
 ```powershell
 kubectl kustomize .\k8s
 kubectl apply -k .\k8s
+
 kubectl get pods,deployments,services,pvc -n nfi
 ```
 
-The model PVC is configured to start empty, so the pod can be Running and live while remaining
-unready. The optional `k8s/model-loader-pod.yaml` mounts that claim read/write for provisioning.
-With the
-modern artifacts in local `models/`, copy them and restart the application:
+The model PVC starts empty, so the pod can be Running and live while remaining unready. The optional `k8s/model-loader-pod.yaml` mounts the model claim read/write for provisioning.
+
+### 3. Provision the model artifacts
+
+With the modern artifacts available locally in `models/`:
 
 ```powershell
 kubectl apply -f .\k8s\model-loader-pod.yaml
+
 kubectl wait --for=condition=Ready pod/nfi-model-loader -n nfi --timeout=120s
+
 kubectl cp .\models\binary_fault_detector.keras nfi/nfi-model-loader:/app/models/binary_fault_detector.keras
 kubectl cp .\models\fault_cause_classifier.keras nfi/nfi-model-loader:/app/models/fault_cause_classifier.keras
 kubectl cp .\models\preprocessing.joblib nfi/nfi-model-loader:/app/models/preprocessing.joblib
 kubectl cp .\models\model_metadata.json nfi/nfi-model-loader:/app/models/model_metadata.json
+
 kubectl delete -f .\k8s\model-loader-pod.yaml
+
 kubectl rollout restart deployment/network-fault-intelligence-platform -n nfi
 kubectl rollout status deployment/network-fault-intelligence-platform -n nfi
 ```
 
-The application mounts `/app/models` read-only. The probe checks the existing readiness
-response's `inference` field because the API returns HTTP 200 with a degraded body when artifacts
-are absent. Before copying the models, the pod should stay Running/live but show `0/1` Ready, and
-`POST /v1/predictions` returns the API's structured 503. Port-forward and inspect health and
-documentation:
+The application mounts `/app/models` read-only.
+
+Before copying the artifacts, the pod is expected to remain live but show `0/1` Ready, while `/v1/predictions` returns the structured `503` response.
+
+### 4. Inspect health and API documentation
 
 ```powershell
 kubectl port-forward service/nfi-api 8000:8000 -n nfi
+```
+
+In another terminal:
+
+```powershell
 Invoke-RestMethod http://localhost:8000/health/live
 Invoke-RestMethod http://localhost:8000/health/ready
 Invoke-WebRequest http://localhost:8000/docs
 Invoke-WebRequest http://localhost:8000/openapi.json
 ```
 
-After deployment, submit a real recovered dataset sample through Swagger UI for prediction checks.
-Alembic upgrades are applied by the existing application startup; no destructive downgrade or
-database reset is performed. The SQLite PVC preserves history across pod replacement, but the one-replica,
-ReadWriteOnce local setup is not high availability or a supported multi-node database design.
-Initial CPU/memory requests and limits are conservative starting values and need tuning from
-observed cluster usage. To remove the deployment, run `kubectl delete -k .\k8s`; this also deletes
-the namespace and its PVCs, including local history and provisioned model copies.
+After deployment, submit a real recovered-dataset sample through Swagger UI for prediction checks.
 
-## Data and security
+Alembic upgrades are applied by the existing application startup. No destructive downgrade or database reset is performed.
 
-The current SQLite table records prediction output, timestamp, and validated KPI payload for
-history. SQLite is a development/single-instance choice, not a multi-replica database design.
-Authentication, role-based access, retention controls, and privacy review remain prerequisites
-before handling employee accounts or sensitive operational data. Logs include cell and request
-identifiers only; do not add raw KPI payloads or credentials to logs.
+The SQLite PVC preserves history across pod replacement, but the one-replica, `ReadWriteOnce` configuration is not a high-availability or multi-node database architecture. Initial CPU and memory requests and limits are conservative starting values and require tuning from observed cluster usage.
 
-## Tests and CI
+**Removal warning:** deleting the deployment also deletes the namespace and its PVCs, including stored history and provisioned model copies.
+
+```powershell
+kubectl delete -k .\k8s
+```
+
+---
+
+## 🛡️ Data and security
+
+The current SQLite table records prediction outputs, timestamps, and validated KPI payloads for history. SQLite is suitable for the documented development and single-instance configuration, not a multi-replica database design.
+
+Security and operational considerations include:
+
+- Authentication, role-based access, retention controls, and privacy review are prerequisites before handling employee accounts or sensitive operational data.
+- Logs include cell and request identifiers only; raw KPI payloads and credentials should not be added to logs.
+- Model and preprocessing artifacts remain external runtime artifacts and are not committed to Git.
+- Bootstrap credentials should be removed after initial account creation.
+- Production credentials should be supplied through appropriate secret management.
+- HTTPS, secure cookies, and ingress-level rate limiting should be configured before production use.
+- A live deployment requires additional operational, security, and performance validation.
+
+The project is a research and portfolio platform, not a production certification or guarantee of operational suitability.
+
+---
+
+## 🧪 Tests and CI
+
+Install development dependencies and run linting and tests:
 
 ```sh
 python -m pip install -e ".[dev]"
+
 ruff check .
 pytest
+```
+
+To build the container in a Docker-enabled environment:
+
+```sh
 docker build -t network-fault-intelligence-platform:local .
 ```
 
-GitHub Actions is configured to run lint, behavior tests, a Docker build, and Kubernetes manifest
-YAML parsing on pushes and pull requests. It does not deploy to production. Kubernetes YAML
-parsing does not verify behavior on a live cluster; use cluster-specific policy validation before
-production deployment.
+GitHub Actions is configured to run lint, behavior tests, a Docker build, and Kubernetes manifest YAML parsing on pushes and pull requests.
 
-## Limitations and next steps
+CI does not deploy to production. Kubernetes YAML parsing checks syntax, not behavior on a live cluster; cluster-specific policy validation and runtime testing are still required.
 
-The recovered dataset's provenance relative to original model training could not be established.
-The grouped evaluation is a portfolio/research result on one recovered dataset, not evidence of
-independent performance on live network traffic. Model and scaler files are intentionally ignored
-by Git pending review of their provenance and suitability for publication. The modernized
-Kubernetes deployment is intended for local demonstration, not production-scale operation.
+The frontend can be checked separately using:
 
-## FastAPI authentication
+```sh
+node --check app/ui/assets/app.js
+```
 
-The modernized application now includes a FastAPI username/password login flow. This is a new
-implementation; the historical Ericsson application used Flask authentication. Passwords are
-hashed with Argon2 via `pwdlib`. Random opaque session tokens are sent in an `HttpOnly` cookie;
-only SHA-256 token digests and expiry timestamps are stored in the existing SQLite database.
-The session lifetime defaults to eight hours. Sessions expire server-side and are removed when
-expired sessions are encountered or new sessions are created.
+---
 
-`POST /v1/auth/login` accepts `username` and `password`, sets the session cookie, and returns
-basic user details including the database-backed application role. `GET /v1/auth/me` returns the
-current user or `401`. `POST /v1/auth/logout`
-invalidates the current session and clears the cookie. `POST /v1/predictions`,
-`GET /v1/history`, and `POST /v1/recommendations` require an active authenticated session.
-`GET /health/live` and `GET /health/ready` remain public for container probes. There is no public
-signup route.
+## 🔭 Limitations and next steps
 
-The UI checks `/v1/auth/me` on startup, presents a matching NOC-style sign-in view when unauthenticated,
-and shows the signed-in account and logout action in the application shell. Cookies use `SameSite=Lax`
-and are `HttpOnly`; the local default does not set `Secure`, so `http://localhost:8000` works.
-For HTTPS deployment set `NFI_COOKIE_SECURE=true`. Browser write endpoints also reject explicit
-cross-origin requests; the same-origin UI requires no JavaScript-readable CSRF token. Keep the UI
-and API on the same origin.
+The current implementation has deliberate boundaries.
 
-The application roles are `operator`, `network_admin`, and `platform_ml_admin`. Operators use the
-Network Health and Network Sites views to investigate results, record findings, and submit cases
-for review. Network administrators have a dedicated Investigation Queue and review page for
-submitted cases; the queue excludes editable drafts and supports verified, unresolved, and unknown
-outcomes through the existing verification workflow. The original predicted cause, investigator
-proposal, and verified cause remain separate. Platform/ML administrators retain access to existing
-privileged model/evaluation fields and API documentation. The Platform/ML Admin workspace includes
-an overview, aggregate ML Evaluation, and a read-only Verified Outcomes evidence page. Verified
-outcomes use the same eligibility rules as aggregate evaluation and preserve unknown model
-provenance as unattributed. Training and model-management functions are not implemented.
+- **Dataset provenance:** the recovered dataset's relationship to original model training could not be established.
+- **Generalization:** grouped evaluation on one recovered dataset is a research and portfolio result, not independent validation on live network traffic.
+- **Model publication:** model and scaler files remain ignored by Git pending provenance and publication review.
+- **Runtime validation:** Docker image execution and Kubernetes deployment require verification in an environment with the appropriate tooling.
+- **Persistence:** SQLite and the one-replica deployment are not a high-availability or multi-replica design.
+- **Production security:** authentication and RBAC exist, but rate limiting, broader security review, and deployment hardening remain necessary.
+- **Operations:** resource requests and limits need tuning against observed workload behavior.
 
-Operators and network administrators receive operational statuses, predicted causes,
-recommendations, and the seven input KPIs. Their prediction, history, and Network Health API
-responses omit probabilities, classifier internals, model metadata, evaluation metrics, training
-data, and ground-truth labels. Complete results remain stored in SQLite for the privileged API
-projection. Roles are loaded from the user database row on every request; changing a role affects
-existing sessions on the next request. The browser role display is for navigation and presentation;
-the API enforces access.
+### Potential future work
 
-For local setup, create an ignored `.env` with `NFI_BOOTSTRAP_USERNAME` and
-`NFI_BOOTSTRAP_PASSWORD` set to a unique account, then start the API. The optional
-`NFI_BOOTSTRAP_ROLE` defaults to `operator`. Set it to a privileged role only through trusted
-server-side configuration when creating the initial account. Bootstrap never promotes or changes
-an existing account; remove bootstrap credentials after initial creation. For an existing account,
-role assignment requires controlled database administration, for example an authorized operator
-can run `sqlite3 ./data/nfi.sqlite3 "UPDATE users SET role='platform_ml_admin' WHERE username='admin@example.test';"`.
-The database constraint rejects values outside the three roles. There is no public role-assignment
-endpoint. Relevant settings are:
+1. Validate the model pipeline against a dataset with independently established provenance.
+2. Verify Docker and Kubernetes behavior in a controlled test environment.
+3. Add ingress-level rate limiting and complete deployment security review.
+4. Evaluate persistent storage options for multi-replica deployments.
+5. Measure inference latency, throughput, and resource consumption before considering service separation.
+6. Improve the evidence base for verified-outcome evaluation and fault-investigation workflows.
 
-| Variable | Default | Purpose |
-| --- | --- | --- |
-| `NFI_SESSION_TTL` | `28800` | Session lifetime in seconds |
-| `NFI_COOKIE_SECURE` | `false` | Require HTTPS for the session cookie |
-| `NFI_COOKIE_SAMESITE` | `lax` | Cookie SameSite policy |
-| `NFI_BOOTSTRAP_USERNAME` | unset | Initial controlled account username/email |
-| `NFI_BOOTSTRAP_PASSWORD` | unset | Initial password; never logged or stored in plaintext |
-| `NFI_BOOTSTRAP_ROLE` | `operator` | Role for a newly created bootstrap account only |
+These are future directions, not claims of completed work.
 
-The additive `0005_user_roles` Alembic migration adds a checked role column and assigns existing
-users `operator`; it does not modify prediction history. Provide production credentials through a Kubernetes Secret (never a ConfigMap), and use a strong,
-unique `NFI_BOOTSTRAP_PASSWORD`. TLS termination must be configured before enabling secure cookies.
-Login throttling is not implemented in this phase; production deployment should apply lightweight
-rate limiting at the ingress or reverse proxy. This is application authentication, not enterprise
-SSO, OAuth, or a security certification.
+---
+
+## 🧑‍💻 About the project
+
+Network Fault Intelligence brings together my background in telecommunications and network engineering with my interest in machine learning, backend development, Kubernetes, and DevOps.
+
+The modernization effort focused not only on presenting a model prediction, but also on building a structured application around it: validated inputs, explicit inference contracts, deterministic recommendations, role-aware access, investigation history, and deployment configuration.
+
+The original thesis and internship work provided the research foundation. The modern platform is a separate engineering implementation, with historical artifacts isolated from the current pipeline.
+
+<div align="center">
+
+**Built around network intelligence. Engineered for transparency. Designed for investigation.**
+
+<br />
+
+[Portfolio](https://ghozlanetata.netlify.app)
+&nbsp; · &nbsp;
+[GitHub](https://github.com/ghozlanetata)
+&nbsp; · &nbsp;
+[LinkedIn](https://www.linkedin.com/in/ghozlane-tata-911811273/)
+
+</div>
