@@ -1,16 +1,19 @@
+﻿ 
+<p align="center">
+  <img
+    src="docs/media/nfi-header.svg"
+    alt="Network Fault Intelligence — Network analytics and fault classification"
+    width="100%"
+  />
+</p>
 
-<div align="center">
-
-# 📡 NETWORK FAULT INTELLIGENCE
-### A Deep Learning & Network Intelligence Platform
-
-<p>
+<p align="center">
   <img src="https://img.shields.io/badge/DOMAIN-TELECOMMUNICATIONS-0B2538?style=for-the-badge&labelColor=071321" alt="Telecommunications" />
   <img src="https://img.shields.io/badge/NETWORKS-2G%20%7C%203G%20%7C%204G-087F8C?style=for-the-badge&labelColor=071321" alt="2G, 3G and 4G" />
   <img src="https://img.shields.io/badge/ML-LSTM-00A896?style=for-the-badge&labelColor=071321" alt="LSTM" />
 </p>
 
-<p>
+<p align="center">
   <img src="https://img.shields.io/badge/API-FastAPI-009688?style=flat-square&logo=fastapi&logoColor=white" alt="FastAPI" />
   <img src="https://img.shields.io/badge/ML_FRAMEWORK-Keras-D00000?style=flat-square&logo=keras&logoColor=white" alt="Keras" />
   <img src="https://img.shields.io/badge/DATA-SQLite-003B57?style=flat-square&logo=sqlite&logoColor=white" alt="SQLite" />
@@ -19,19 +22,20 @@
   <img src="https://img.shields.io/badge/LANGUAGE-Python-3776AB?style=flat-square&logo=python&logoColor=white" alt="Python" />
 </p>
 
-**From mobile-network KPIs to structured fault investigations.**
+<p align="center">
+  <strong>From mobile-network KPIs to structured fault investigations.</strong>
+  <br />
+  A research-driven platform combining deep-learning-based fault detection, fault-cause classification, deterministic troubleshooting, and historical investigation workflows.
+</p>
 
-A modernized research platform for network fault detection, fault-cause classification, deterministic troubleshooting, and historical investigation workflows.
+<p align="center">
+  <a href="https://github.com/ghozlanetata/network-fault-intelligence-platform">Explore the Repository</a>
+  &nbsp; · &nbsp;
+  <a href="#-api-reference">API Documentation</a>
+  &nbsp; · &nbsp;
+  <a href="#-modernized-ml-pipeline">ML Pipeline</a>
+</p>
 
-<br />
-
-[ Explore the Repository](https://github.com/ghozlanetata/network-fault-intelligence-platform)
-&nbsp; · &nbsp;
-[ API Documentation](#-api-reference)
-&nbsp; · &nbsp;
-[ ML Pipeline](#-modernized-ml-pipeline)
-
-</div>
 
 ---
 
@@ -41,7 +45,7 @@ Network Fault Intelligence (NFI) is a software engineering and machine-learning 
 
 The original research focused on analyzing drive-test and mobile-network performance indicators across 2G, 3G, and 4G environments. The modernized implementation brings that research into a structured application with validated API contracts, separate fault-detection and fault-classification models, deterministic troubleshooting rules, persistent prediction history, authentication, and role-based investigation workflows.
 
-The platform is designed to connect three areas:
+The platform connects three areas:
 
 - **Network engineering:** mobile-network KPIs, site context, and fault investigation.
 - **Machine learning:** binary fault detection and multiclass fault-cause classification.
@@ -51,39 +55,21 @@ The historical project materials were recovered for investigation and remain sep
 
 ## 🖥️ A glimpse inside
 
-<!--
-Add your own recorded dashboard GIF at:
-docs/media/nfi-dashboard.gif
-
-Capture the actual application rather than simulated telemetry.
-Keep the animation short, legible, and optimized for GitHub.
--->
-
 <div align="center">
-  <img
-    src="docs/media/nfi-dashboard.gif"
-    alt="Network Fault Intelligence operator interface walkthrough"
-    width="94%"
-  />
-  <p><em>Operator interface preview — replace this placeholder with an actual dashboard recording.</em></p>
+
+<img src="docs/media/nfi-dashboard.gif" alt="Animated walkthrough of the Network Fault Intelligence operator interface" width="94%" />
+
+*An overview of the NFI operator interface and network fault investigation workflow.*
+
 </div>
-
-<!-- Optional screenshots. Add the image files before uncommenting.
-
-<div align="center">
-  <img src="docs/screenshots/nfi-overview.png" alt="NFI overview dashboard" width="48%" />
-  <img src="docs/screenshots/nfi-analysis.png" alt="NFI network fault analysis" width="48%" />
-</div>
-
--->
 
 The interface includes an overview, network health and site exploration, KPI analysis, prediction history, investigation workflows, and role-specific administration views.
 
-The site exploration view plots recorded coordinates from prediction history; it is not a live map service. Dashboard metrics are derived from stored records rather than invented live telemetry.
+The site exploration view plots recorded coordinates from prediction history; it is not a live map service. Dashboard metrics are derived from stored records rather than simulated live telemetry.
 
 ## 🧭 Table of contents
 
-- [Project overview](#-the-project)
+- [The project](#-the-project)
 - [Current implementation status](#-current-implementation-status)
 - [System architecture](#-system-architecture)
 - [Research workflow and KPI contract](#-research-workflow-and-kpi-contract)
@@ -99,6 +85,7 @@ The site exploration view plots recorded coordinates from prediction history; it
 - [Data and security](#-data-and-security)
 - [Testing and CI](#-testing-and-ci)
 - [Limitations and next steps](#-limitations-and-next-steps)
+- [About the project](#-about-the-project)
 
 ---
 
@@ -110,7 +97,7 @@ The site exploration view plots recorded coordinates from prediction history; it
 | KPI validation and prediction API | Implemented; requires loadable local model artifacts for successful inference |
 | Binary and multiclass ML pipeline | Rebuilt; evaluation documented below |
 | Persisted preprocessing | Training-fitted `StandardScaler` and feature metadata |
-| Troubleshooting recommendations | Deterministic rule-based implementation |
+| Troubleshooting recommendations | Deterministic, rule-based implementation |
 | Prediction history | SQLite-backed |
 | Operator interface | FastAPI-served HTML, CSS, and vanilla JavaScript |
 | Authentication and RBAC | Application-level login, sessions, and role-based authorization |
@@ -119,7 +106,7 @@ The site exploration view plots recorded coordinates from prediction history; it
 | Kubernetes manifests | Implemented and statically inspected; live-cluster deployment not verified |
 | Production readiness | Not established |
 
-**Important:** implementation does not imply production verification. Docker and Kubernetes runtime validation remain outstanding in the development environment described by this repository.
+**Important:** Implementation does not imply production verification. Docker and Kubernetes runtime validation remain outstanding in the development environment described by this repository.
 
 ---
 
@@ -178,7 +165,7 @@ flowchart TB
     class OVERVIEW,ANALYSIS,REVIEW interface
 ```
 
-The deployed configuration is designed around a **single backend container**. The inference interface remains internal to the backend; a separate inference service should only be considered after validating the models and measuring actual workload requirements.
+The deployment configuration is designed around a **single backend container**. The inference interface remains internal to the backend; a separate inference service should only be considered after validating the models and measuring actual workload requirements.
 
 The single-replica Kubernetes setup uses SQLite for history and authentication data. It is a local demonstration architecture, not a high-availability or multi-replica database design.
 
@@ -267,22 +254,24 @@ A deterministic `StratifiedGroupKFold` split keeps identical seven-feature vecto
 The reported evaluation results were:
 
 <div align="center">
-  <table>
-    <tr>
-      <th align="center">Binary fault detection</th>
-      <th align="center">Multiclass classification</th>
-    </tr>
-    <tr>
-      <td align="center">
-        <h2>95.09%</h2>
-        <sub>Reported test accuracy</sub>
-      </td>
-      <td align="center">
-        <h2>99.39%</h2>
-        <sub>Reported test accuracy</sub>
-      </td>
-    </tr>
-  </table>
+
+<table>
+  <tr>
+    <th align="center">Binary fault detection</th>
+    <th align="center">Multiclass classification</th>
+  </tr>
+  <tr>
+    <td align="center">
+      <h2>95.09%</h2>
+      <sub>Reported test accuracy</sub>
+    </td>
+    <td align="center">
+      <h2>99.39%</h2>
+      <sub>Reported test accuracy</sub>
+    </td>
+  </tr>
+</table>
+
 </div>
 
 These figures describe the recorded audit of the recovered dataset. The dataset's provenance relative to the original model development could not be established. Consequently, the results **do not demonstrate independent generalization or performance on live mobile-network traffic**.
@@ -348,6 +337,9 @@ network-fault-intelligence-platform/
 │       └── assets/
 │           ├── app.js
 │           └── ...
+├── docs/
+│   └── media/
+│       └── nfi-dashboard.gif
 ├── migrations/
 ├── tests/
 ├── k8s/
@@ -369,6 +361,7 @@ network-fault-intelligence-platform/
 | `migrations/` | Alembic schema migrations |
 | `tests/` | API, migration, authentication, investigation, and ML pipeline tests |
 | `Dockerfile`, `k8s/` | Container image and Kubernetes manifests |
+| `docs/media/` | README media, including the animated dashboard preview |
 | `artifacts/`, `models/`, `data/` | Local generated outputs and runtime data; ignored by Git |
 
 The exact file inventory can evolve as the implementation changes. The historical Ericsson project artifacts and recovered source dataset are not intended to be published as part of the modern repository.
@@ -556,7 +549,7 @@ The `.env` file is ignored by Git. Review the authentication setup before creati
 
 The Dockerfile and container configuration are implemented, and the UI is included through the existing `COPY app ./app` step.
 
-**Verification status:** image build and container runtime verification were pending on the development workstation because Docker was unavailable. The commands below describe how to test the image in an environment with Docker installed; they are not evidence that these commands have already succeeded.
+**Verification status:** Image build and container runtime verification were pending on the development workstation because Docker was unavailable. The commands below describe how to test the image in an environment with Docker installed; they are not evidence that these commands have already succeeded.
 
 ### Build the image
 
@@ -618,7 +611,7 @@ Kubernetes is part of the modernized implementation; it was not used by the orig
 
 The manifests configure the FastAPI container in namespace `nfi`, with a ClusterIP service, persistent volume claims for SQLite history and externally supplied model files, and startup, liveness, and readiness probes.
 
-**Verification status:** manifests have been statically inspected but have not been deployed to a live cluster in the documented workstation environment.
+**Verification status:** Manifests have been statically inspected but have not been deployed to a live cluster in the documented workstation environment.
 
 The configuration uses one replica because SQLite and the `ReadWriteOnce` volumes are not a supported multi-replica persistence design.
 
@@ -692,7 +685,7 @@ Alembic upgrades are applied by the existing application startup. No destructive
 
 The SQLite PVC preserves history across pod replacement, but the one-replica, `ReadWriteOnce` configuration is not a high-availability or multi-node database architecture. Initial CPU and memory requests and limits are conservative starting values and require tuning from observed cluster usage.
 
-**Removal warning:** deleting the deployment also deletes the namespace and its PVCs, including stored history and provisioned model copies.
+**Removal warning:** Deleting the deployment also deletes the namespace and its PVCs, including stored history and provisioned model copies.
 
 ```powershell
 kubectl delete -k .\k8s
@@ -722,7 +715,7 @@ The project is a research and portfolio platform, not a production certification
 
 Install development dependencies and run linting and tests:
 
-```sh
+```powershell
 python -m pip install -e ".[dev]"
 
 ruff check .
@@ -731,7 +724,7 @@ pytest
 
 To build the container in a Docker-enabled environment:
 
-```sh
+```powershell
 docker build -t network-fault-intelligence-platform:local .
 ```
 
@@ -741,7 +734,7 @@ CI does not deploy to production. Kubernetes YAML parsing checks syntax, not beh
 
 The frontend can be checked separately using:
 
-```sh
+```powershell
 node --check app/ui/assets/app.js
 ```
 
@@ -751,13 +744,13 @@ node --check app/ui/assets/app.js
 
 The current implementation has deliberate boundaries.
 
-- **Dataset provenance:** the recovered dataset's relationship to original model training could not be established.
-- **Generalization:** grouped evaluation on one recovered dataset is a research and portfolio result, not independent validation on live network traffic.
-- **Model publication:** model and scaler files remain ignored by Git pending provenance and publication review.
+- **Dataset provenance:** The recovered dataset's relationship to original model training could not be established.
+- **Generalization:** Grouped evaluation on one recovered dataset is a research and portfolio result, not independent validation on live network traffic.
+- **Model publication:** Model and scaler files remain ignored by Git pending provenance and publication review.
 - **Runtime validation:** Docker image execution and Kubernetes deployment require verification in an environment with the appropriate tooling.
 - **Persistence:** SQLite and the one-replica deployment are not a high-availability or multi-replica design.
-- **Production security:** authentication and RBAC exist, but rate limiting, broader security review, and deployment hardening remain necessary.
-- **Operations:** resource requests and limits need tuning against observed workload behavior.
+- **Production security:** Authentication and RBAC exist, but rate limiting, broader security review, and deployment hardening remain necessary.
+- **Operations:** Resource requests and limits need tuning against observed workload behavior.
 
 ### Potential future work
 
