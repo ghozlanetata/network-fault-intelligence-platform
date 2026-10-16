@@ -1,0 +1,101 @@
+
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="340" viewBox="0 0 1200 340" fill="none">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="340" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#071525"></stop>
+      <stop offset="0.58" stop-color="#0A2035"></stop>
+      <stop offset="1" stop-color="#07111F"></stop>
+    </linearGradient>
+    <linearGradient id="cyan" x1="70" y1="0" x2="750" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#67E8F9"></stop>
+      <stop offset="1" stop-color="#0891B2"></stop>
+    </linearGradient>
+    <linearGradient id="line" x1="700" y1="0" x2="1150" y2="300" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#22D3EE" stop-opacity="0.8"></stop>
+      <stop offset="1" stop-color="#38BDF8" stop-opacity="0.15"></stop>
+    </linearGradient>
+    <pattern id="grid" width="28" height="28" patternUnits="userSpaceOnUse">
+      <path d="M28 0H0V28" stroke="#7DD3FC" stroke-opacity="0.055"></path>
+    </pattern>
+    <filter id="glow" x="-100%" y="-100%" width="300%" height="300%">
+      <feGaussianBlur stdDeviation="5" result="blur"></feGaussianBlur>
+      <feMerge>
+        <feMergeNode in="blur"></feMergeNode>
+        <feMergeNode in="SourceGraphic"></feMergeNode>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="1200" height="340" rx="18" fill="url(#bg)"></rect>
+  <rect width="1200" height="340" rx="18" fill="url(#grid)"></rect>
+  <path d="M0 3H1200" stroke="#22D3EE" stroke-opacity="0.65" stroke-width="3"></path>
+  <path d="M0 300C220 270 390 350 630 300S1000 260 1200 290" stroke="#0EA5E9" stroke-opacity="0.12" stroke-width="1.5"></path>
+
+  <!-- Project identity -->
+  <g font-family="Arial, Helvetica, sans-serif">
+    <rect x="68" y="62" width="42" height="3" rx="1.5" fill="#22D3EE"></rect>
+    <text x="68" y="91" fill="#67E8F9" font-size="13" font-weight="700" letter-spacing="4">NETWORK INTELLIGENCE PLATFORM</text>
+
+    <text x="64" y="155" fill="#F0F9FF" font-size="49" font-weight="800" letter-spacing="1">NETWORK FAULT</text>
+    <text x="64" y="211" fill="url(#cyan)" font-size="49" font-weight="800" letter-spacing="1">INTELLIGENCE</text>
+
+    <text x="68" y="247" fill="#A9C2D5" font-size="16" letter-spacing="1.1">DETECT. CLASSIFY. UNDERSTAND.</text>
+
+    <g transform="translate(68 276)">
+      <rect width="118" height="27" rx="5" fill="#0E7490" fill-opacity="0.18" stroke="#22D3EE" stroke-opacity="0.55"></rect>
+      <circle cx="13" cy="13.5" r="3.5" fill="#22D3EE"></circle>
+      <text x="24" y="18" fill="#BAF6FF" font-size="10" font-weight="700" letter-spacing="1">NETWORK KPIs</text>
+
+      <rect x="128" width="130" height="27" rx="5" fill="#15803D" fill-opacity="0.14" stroke="#4ADE80" stroke-opacity="0.5"></rect>
+      <circle cx="141" cy="13.5" r="3.5" fill="#4ADE80"></circle>
+      <text x="152" y="18" fill="#BBF7D0" font-size="10" font-weight="700" letter-spacing="1">ML CLASSIFIER</text>
+    </g>
+  </g>
+
+  <!-- Network topology -->
+  <g stroke="url(#line)" stroke-width="1.5">
+    <path d="M760 90L865 66L966 110L1080 70"></path>
+    <path d="M760 90L816 172L925 190L966 110"></path>
+    <path d="M966 110L1055 165L1120 128"></path>
+    <path d="M816 172L790 252L925 268L1055 165"></path>
+    <path d="M925 190L925 268L1030 248L1055 165"></path>
+    <path d="M1080 70L1120 128L1055 165"></path>
+    <path d="M865 66L925 190"></path>
+    <path d="M1030 248L1120 128"></path>
+  </g>
+
+  <!-- Signal pulse traces -->
+  <path d="M750 222H802L819 222L831 205L844 239L857 214L870 222H917" stroke="#22D3EE" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" filter="url(#glow)"></path>
+  <path d="M985 55H1010L1020 45L1030 66L1040 55H1094" stroke="#4ADE80" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"></path>
+
+  <!-- Network nodes -->
+  <g>
+    <circle cx="760" cy="90" r="8" fill="#071525" stroke="#22D3EE" stroke-width="2"></circle>
+    <circle cx="760" cy="90" r="3" fill="#22D3EE"></circle>
+    <circle cx="865" cy="66" r="6" fill="#071525" stroke="#38BDF8" stroke-width="2"></circle>
+    <circle cx="966" cy="110" r="9" fill="#071525" stroke="#22D3EE" stroke-width="2"></circle>
+    <circle cx="966" cy="110" r="3" fill="#22D3EE"></circle>
+    <circle cx="1080" cy="70" r="6" fill="#071525" stroke="#38BDF8" stroke-width="2"></circle>
+    <circle cx="816" cy="172" r="7" fill="#071525" stroke="#38BDF8" stroke-width="2"></circle>
+    <circle cx="925" cy="190" r="8" fill="#071525" stroke="#22D3EE" stroke-width="2"></circle>
+    <circle cx="925" cy="190" r="3" fill="#22D3EE"></circle>
+    <circle cx="1120" cy="128" r="7" fill="#071525" stroke="#38BDF8" stroke-width="2"></circle>
+    <circle cx="1055" cy="165" r="9" fill="#071525" stroke="#FBBF24" stroke-width="2"></circle>
+    <circle cx="1055" cy="165" r="3" fill="#FBBF24"></circle>
+    <circle cx="790" cy="252" r="6" fill="#071525" stroke="#38BDF8" stroke-width="2"></circle>
+    <circle cx="925" cy="268" r="6" fill="#071525" stroke="#38BDF8" stroke-width="2"></circle>
+    <circle cx="1030" cy="248" r="8" fill="#071525" stroke="#F87171" stroke-width="2"></circle>
+    <circle cx="1030" cy="248" r="3" fill="#F87171"></circle>
+  </g>
+
+  <!-- Diagnostic status indicators -->
+  <g font-family="Arial, Helvetica, sans-serif" font-size="10" font-weight="700" letter-spacing="1">
+    <rect x="1000" y="188" width="105" height="23" rx="4" fill="#78350F" fill-opacity="0.32" stroke="#FBBF24" stroke-opacity="0.65"></rect>
+    <text x="1011" y="203" fill="#FDE68A">ANOMALY</text>
+
+    <rect x="1050" y="270" width="100" height="23" rx="4" fill="#7F1D1D" fill-opacity="0.3" stroke="#F87171" stroke-opacity="0.65"></rect>
+    <text x="1061" y="285" fill="#FECACA">FAULT NODE</text>
+  </g>
+
+  <text x="1135" y="319" fill="#64849B" font-family="Arial, Helvetica, sans-serif" font-size="10" letter-spacing="2" text-anchor="end">NFI / NETWORK ANALYTICS</text>
+</svg>
